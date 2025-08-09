@@ -21,7 +21,7 @@ Follow these steps to get your starter kit up and running.
 ### 1. Prerequisites
 
 -   **Node.js**: You must have Node.js v18 or higher installed.
--   **Gaia Node**: You need a running instance of a Gaia node. Please refer to the official Gaia documentation for setup instructions.
+-   **Gaia Node**: You need a running instance of a Gaia node. Please refer to the [official Gaia documentation](https://docs.gaianet.ai/getting-started/quick-start?ref=gaia-hedera-starter-kit) for setup instructions.
 -   **Hedera Testnet Account**: You need an account ID and an ECDSA private key from the [Hedera Portal](https://portal.hedera.com/dashboard).
 
 ### 2. Project Setup
