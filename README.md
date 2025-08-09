@@ -76,6 +76,11 @@ npm run start:autonomous
 -   `"create a fungible token called 'My First Coin' with symbol 'MFC' and an initial supply of 50000"`
 -   `"send 10 hbar to account 0.0.987"`
 
+<img width="906" height="397" alt="image" src="https://github.com/user-attachments/assets/8fd3aecd-91d0-447c-8a3a-417a2030c46b" />
+
+https://github.com/user-attachments/assets/66899ccb-8f39-4388-aad0-7e3aec11b835
+
+
 ### 2. The NFT Agent (`structured-chat-agent.js`)
 
 This is another autonomous agent but is pre-configured with a wider range of tools, including those for creating and minting NFTs.
@@ -89,6 +94,11 @@ npm run start:nft
 -   `"I want to create an NFT collection. Let's call it 'Digital Wonders' with the symbol 'DW'. Make the max supply 100."`
 -   `"mint a new NFT for token 0.0.xxxxxx with the metadata 'ipfs://Qm.../1.json'"`
 
+<img width="900" height="437" alt="image" src="https://github.com/user-attachments/assets/e6755276-b764-41a4-8835-2c6b4d8379b0" />
+
+https://github.com/user-attachments/assets/370bf385-a0e7-483b-a55e-6d9cc6885858
+
+
 ### 3. The Wallet Simulator Agent (`return-bytes-agent.js`)
 
 This agent demonstrates the "human-in-the-loop" model. It prepares a transaction but does not execute it. Instead, it returns the raw transaction bytes, and the script then executes them, simulating how a wallet would seek user approval.
@@ -99,9 +109,15 @@ npm run start:wallet-sim
 ```
 
 **Example Prompts:**
--   `"prepare a transaction to send 2.5 hbar to 0.0.12345"`
+-   `"prepare a transaction to send 2.5 hbar to 0.0.6532914"`
 -   `"get the bytes to create a token called 'Wallet Token' with symbol 'WTK'"`
 -   (For queries): `"what's my balance"` - This will not return bytes, as it's not a transaction.
+
+
+<img width="901" height="561" alt="image" src="https://github.com/user-attachments/assets/490345be-78a1-4c84-89b9-d4e5de87c306" />
+
+https://github.com/user-attachments/assets/65e67345-c4bd-4eb2-a9de-505b646d1e13
+
 
 ## How to Contribute
 
