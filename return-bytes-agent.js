@@ -48,7 +48,6 @@ function extractBytesFromAgentResponse(response) {
                 return obsObj.bytes;
             }
         } catch (e) {
-            // This is not a critical error, so we just log it.
             console.error('Could not parse agent observation:', e);
         }
     }
@@ -70,12 +69,10 @@ async function bootstrap() {
     const operatorPrivateKey = PrivateKey.fromStringECDSA(process.env.PRIVATE_KEY);
 
     // Section 2: Hedera Client Setup (Two Clients)
-    // The "Human-in-the-Loop" client has the user's private key and is responsible for executing the final transaction.
     const humanInTheLoopClient = Client.forTestnet().setOperator(
         operatorAccountId,
         operatorPrivateKey,
     );
-    // The "Agent Client" has no private key. It is only used to prepare the transaction, not execute it.
     const agentClient = Client.forTestnet();
     
     // Section 3: Hedera Agent Toolkit & Tool Selection
@@ -84,26 +81,26 @@ async function bootstrap() {
     const { GET_HBAR_BALANCE_QUERY_TOOL } = coreQueriesPluginToolNames;
 
     const hederaAgentToolkit = new HederaLangchainToolkit({
-        client: agentClient, // Note: The key-less client is given to the toolkit.
+        client: agentClient,
         configuration: {
-            // We explicitly list the tools this agent can prepare.
             tools: [
                 GET_HBAR_BALANCE_QUERY_TOOL,
                 TRANSFER_HBAR_TOOL,
                 CREATE_FUNGIBLE_TOKEN_TOOL
             ],
-            // RETURN_BYTES mode tells the agent to prepare transactions but not execute them.
             context: {
                 mode: AgentMode.RETURN_BYTES,
-                accountId: operatorAccountId, // The agent still needs to know the user's account ID.
+                accountId: operatorAccountId,
             },
             plugins: [coreHTSPlugin, coreAccountPlugin, coreConsensusPlugin, coreQueriesPlugin],
         },
     });
 
     // Section 4: Agent & Executor Setup
+    // --- FIX: Add specific instructions to the system prompt to ensure correct data types. ---
     const prompt = ChatPromptTemplate.fromMessages([
-        ['system', 'You are a helpful assistant that prepares Hedera transactions for execution.'],
+        ['system', `You are a helpful assistant that prepares Hedera transactions for execution.
+IMPORTANT: When you use a tool, you MUST ensure that any parameter representing a currency amount (like 'hbarAmount' or 'amount') is passed as a STRING, not a number. For example, use "2.5", not 2.5.`],
         ['placeholder', '{chat_history}'],
         ['human', '{input}'],
         ['placeholder', '{agent_scratchpad}'],
@@ -119,7 +116,6 @@ async function bootstrap() {
             outputKey: 'output',
             returnMessages: true,
         }),
-        // This MUST be true to access the transaction bytes from the agent's response.
         returnIntermediateSteps: true,
     });
 
@@ -144,10 +140,8 @@ async function bootstrap() {
             process.stdout.write('\r');
             console.log(`AI: ${response?.output ?? response}`);
 
-            // After getting the AI's response, we check for transaction bytes.
             const bytes = extractBytesFromAgentResponse(response);
             if (bytes) {
-                // The script now takes on the "human" role of signing and executing.
                 const realBytes = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes.data);
                 const tx = Transaction.fromBytes(realBytes);
 
@@ -180,12 +174,12 @@ bootstrap().catch(err => {
 This agent prepares transactions but does not execute them. The script does.
 
 1.  Ask for a transaction to be prepared:
-    -   You: "prepare a transaction to send 5.5 hbar to 0.0.987"
-    -   AI: "I have prepared the transaction to send 5.5 HBAR to account 0.0.987."
+    -   You: "prepare a transaction to send 2.5 hbar to 0.0.6532914"
+    -   AI: "I have prepared the transaction to send 2.5 HBAR to account 0.0.6532914."
     -   (Console will then show the "Transaction bytes received. Executing..." message and the receipt.)
 
 2.  Ask for a different transaction:
-    -   You: "get the bytes to create a token called 'My Wallet Token' with symbol 'MWT'"
+    -   You: "get the bytes to create a token called 'Wallet Token' with symbol 'WTK'"
     -   AI: "I have the transaction bytes ready for you to create the 'My Wallet Token' (MWT)."
     -   (Console will again show the execution and receipt.)
 
